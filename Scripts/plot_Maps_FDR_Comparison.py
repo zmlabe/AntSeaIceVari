@@ -5,7 +5,7 @@ Statistical test uses the FDR method with alpha_FDR=0.05
 Notes
 -----
     Author : Zachary Labe
-    Date   : 9 August 2019
+    Date   : 12 August 2019
 """
 
 ### Import modules
@@ -28,7 +28,7 @@ currenttime = currentmn + '_' + currentdy + '_' + currentyr
 titletime = currentmn + '/' + currentdy + '/' + currentyr
 print('\n' '----Plotting Monthly Map Comparison- %s----' % titletime)
 
-### Alott time series (300 ensemble members)
+### Alott time series (100 ensemble members)
 year1 = 1901
 year2 = 2000
 years = np.arange(year1,year2+1,1)
@@ -38,25 +38,21 @@ years = np.arange(year1,year2+1,1)
 ###############################################################################
 ### Call arguments
 varnames = ['U10','Z50','U200','Z500','SLP','P','T2M','RNET']
-experi = np.repeat([r'\textbf{$\bf{\Delta}$Cu}',r'\textbf{$\bf{\Delta}$ATL}',
-          r'\textbf{$\bf{\Delta}$PAC}'],len(varnames))
+experi = np.repeat([r'\textbf{$\bf{\Delta}$Cu}',r'\textbf{$\bf{\Delta}$Pd}',
+          r'\textbf{$\bf{\Delta}$Pi}'],len(varnames))
 letters = list(string.ascii_lowercase)
 readallinfo = True
-period = 'OND'
+period = 'JA'
 
 ### Define directories
 directorydata = '/seley/zlabe/simu/'
-directoryfigure = '/home/zlabe/Desktop/STRATOVARI/Comparison/Regional/%s_Maps/' % period
+directoryfigure = '/home/zlabe/Desktop/ANTVARI/%s_Maps/' % period
 
 ######################
 def readDataPeriods(varnames,simulations,period):
     ### Call function for 4d variable data
     lat,lon,lev,varfuture = MO.readExperiAll(varnames,simulations[0],'surface')
-    lat,lon,lev,varpastq = MO.readExperiAll(varnames,simulations[1],'surface')
-    
-    ### Only 101 ensembles available for the "Current" simulation (PAMIP-1.1)
-    varfuture = varfuture[:101,:,:,:]
-    varpast = varpastq[:101,:,:,:]
+    lat,lon,lev,varpast = MO.readExperiAll(varnames,simulations[1],'surface')
     
     ### Create 2d array of latitude and longitude
     lon2,lat2 = np.meshgrid(lon,lat)
@@ -66,50 +62,38 @@ def readDataPeriods(varnames,simulations,period):
     varpast[np.where(varpast <= -1e10)] = np.nan
     
     ### Calculate over DJF
-    if period == 'OND':
+    if period == 'JJA':
+        print('Calculating over %s months!' % period)
+        varfuturem = np.nanmean(varfuture[:,5:8,:,:],axis=1)
+        varpastm = np.nanmean(varpast[:,5:8:,:,:],axis=1)
+    elif period == 'JAS':
+        print('Calculating over %s months!' % period)
+        varfuturem = np.nanmean(varfuture[:,6:9,:,:],axis=1)
+        varpastm = np.nanmean(varpast[:,6:9:,:,:],axis=1)
+    elif period == 'July':
+        print('Calculating over %s months!' % period)
+        varfuturem = np.nanmean(varfuture[:,6:7,:,:],axis=1)
+        varpastm = np.nanmean(varpast[:,6:7:,:,:],axis=1)
+    elif period == 'August':
+        print('Calculating over %s months!' % period)
+        varfuturem = np.nanmean(varfuture[:,7:8,:,:],axis=1)
+        varpastm = np.nanmean(varpast[:,7:8:,:,:],axis=1)
+    elif period == 'JA':
+        print('Calculating over %s months!' % period)
+        varfuturem = np.nanmean(varfuture[:,6:8,:,:],axis=1)
+        varpastm = np.nanmean(varpast[:,6:8:,:,:],axis=1)
+    elif period == 'S':
+        print('Calculating over %s months!' % period)
+        varfuturem = np.nanmean(varfuture[:,8:9,:,:],axis=1)
+        varpastm = np.nanmean(varpast[:,8:9:,:,:],axis=1)
+    elif period == 'AMJ':
+        print('Calculating over %s months!' % period)
+        varfuturem = np.nanmean(varfuture[:,3:6,:,:],axis=1)
+        varpastm = np.nanmean(varpast[:,3:6:,:,:],axis=1)
+    elif period == 'OND':
         print('Calculating over %s months!' % period)
         varfuturem = np.nanmean(varfuture[:,-3:,:,:],axis=1)
         varpastm = np.nanmean(varpast[:,-3:,:,:],axis=1)
-    elif period == 'D':
-        print('Calculating over %s months!' % period)
-        varfuturem = np.nanmean(varfuture[:,-1:,:,:],axis=1)
-        varpastm = np.nanmean(varpast[:,-1:,:,:],axis=1)
-    elif period == 'DJF':
-        print('Calculating over %s months!' % period)
-        runs = [varfuture,varpast]
-        var_mo = np.empty((2,varpast.shape[0]-1,varpast.shape[2],varpast.shape[3]))
-        for i in range(len(runs)):
-            var_mo[i,:,:,:] = UT.calcDecJanFeb(runs[i],runs[i],lat,lon,'surface',1) 
-        varfuturem = var_mo[0]
-        varpastm = var_mo[1]
-    elif period == 'JFM':
-        print('Calculating over %s months!' % period)
-        varfuturem = np.nanmean(varfuture[:,0:3,:,:],axis=1)
-        varpastm = np.nanmean(varpast[:,0:3,:,:],axis=1)
-    elif period == 'JF':
-        print('Calculating over %s months!' % period)
-        varfuturem = np.nanmean(varfuture[:,0:2,:,:],axis=1)
-        varpastm = np.nanmean(varpast[:,0:2,:,:],axis=1)
-    elif period == 'FMA':
-        print('Calculating over %s months!' % period)
-        varfuturem = np.nanmean(varfuture[:,1:4,:,:],axis=1)
-        varpastm = np.nanmean(varpast[:,1:4,:,:],axis=1)
-    elif period == 'FM':
-        print('Calculating over %s months!' % period)
-        varfuturem = np.nanmean(varfuture[:,1:3,:,:],axis=1)
-        varpastm = np.nanmean(varpast[:,1:3,:,:],axis=1)
-    elif period == 'J':
-        print('Calculating over %s months!' % period)
-        varfuturem = np.nanmean(varfuture[:,0:1,:,:],axis=1)
-        varpastm = np.nanmean(varpast[:,0:1,:,:],axis=1)
-    elif period == 'F':
-        print('Calculating over %s months!' % period)
-        varfuturem = np.nanmean(varfuture[:,1:2,:,:],axis=1)
-        varpastm = np.nanmean(varpast[:,1:2,:,:],axis=1)
-    elif period == 'M':
-        print('Calculating over %s months!' % period)
-        varfuturem = np.nanmean(varfuture[:,2:3,:,:],axis=1)
-        varpastm = np.nanmean(varpast[:,2:3,:,:],axis=1)
     else:
         print(ValueError('Selected wrong month period!'))
     
@@ -139,13 +123,13 @@ if readallinfo == True:
     pval = np.empty((3,len(varnames),96,144)) # [variables,simulations,lat,lon]
     for v in range(len(varnames)):
         diffp,climop,pp,lat,lon,lev = readDataPeriods(varnames[v],
-                                                         ['Future','Current'],
+                                                         ['ANT_Fu','ANT_Cu'],
                                                          period)
         diffcu,climocu,pcu,lat,lon,lev = readDataPeriods(varnames[v],
-                                                         ['BKsea_Fu','Current'],
+                                                         ['ANT_Cu','ANT_Pi'],
                                                          period)
         diffsit,climosit,psit,lat,lon,lev = readDataPeriods(varnames[v],
-                                                         ['Osea_Fu','Current'],
+                                                         ['ANT_Fu','ANT_Pi'],
                                                          period)
         
         vari[:,v,:,:] = np.asarray([diffp,diffcu,diffsit])
@@ -219,8 +203,8 @@ for i in range(len(varnamesq)):
     
     ax1 = plt.subplot(3,len(varnames),i+1)
 
-    m = Basemap(projection='ortho',lon_0=0,lat_0=89,resolution='l',
-                area_thresh=10000.)
+    m = Basemap(projection='spstere',boundinglat=-40,lon_0=-180,
+                resolution='l',round =True)
     
     varn, lons_cyclic = addcyclic(var[i], lon)
     varn, lons_cyclic = shiftgrid(180., varn, lons_cyclic, start=False)
