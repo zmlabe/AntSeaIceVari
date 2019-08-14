@@ -14,7 +14,7 @@ Usage
 
 def readExperiAll(varid,timeperiod,level):
     """
-    Function reads monthly data from PAMIP simulations for 300 members
+    Function reads monthly data from PAMIP simulations for 100 members
 
     Parameters
     ----------
@@ -44,7 +44,7 @@ def readExperiAll(varid,timeperiod,level):
     ### Import modules
     import numpy as np
     from netCDF4 import Dataset
-    
+
     ###########################################################################
     ###########################################################################
     ###########################################################################
@@ -57,10 +57,15 @@ def readExperiAll(varid,timeperiod,level):
             filename = totaldirectory + varid + '_1900-2000.nc'
             print('Reading in Antarctic Future Sea Ice!')
         elif timeperiod == 'ANT_Cu':
-            experi = 'PAMIP-1.1'
+            experi = 'PAMIP-1.1-QBO'
             directorydata = '/seley/ypeings/simu/'
             totaldirectory = directorydata + experi + '/monthly/'
             filename = totaldirectory + varid + '_1900-2000.nc'
+            if varid == 'SIC':
+                experi = 'PAMIP_Cu' # missing SIC data in 1.1-QBO
+                directorydata = '/seley/zlabe/simu/'
+                totaldirectory = directorydata + experi + '/monthly/'
+                filename = totaldirectory + varid + '_1701-2000.nc'
             print('Reading in Antarctic Present-Day Sea Ice!')
         elif timeperiod == 'ANT_Pi':
             experi = 'PAMIP-1.7'

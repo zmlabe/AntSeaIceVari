@@ -42,7 +42,7 @@ experi = np.repeat([r'\textbf{$\bf{\Delta}$Cu}',r'\textbf{$\bf{\Delta}$Pd}',
           r'\textbf{$\bf{\Delta}$Pi}'],len(varnames))
 letters = list(string.ascii_lowercase)
 readallinfo = True
-period = 'JA'
+period = 'S'
 
 ### Define directories
 directorydata = '/seley/zlabe/simu/'
@@ -94,6 +94,14 @@ def readDataPeriods(varnames,simulations,period):
         print('Calculating over %s months!' % period)
         varfuturem = np.nanmean(varfuture[:,-3:,:,:],axis=1)
         varpastm = np.nanmean(varpast[:,-3:,:,:],axis=1)
+    elif period == 'DJF':
+        print('Calculating over %s months!' % period)
+        runs = [varfuture,varpast]
+        var_mo = np.empty((2,varpast.shape[0]-1,varpast.shape[2],varpast.shape[3]))
+        for i in range(len(runs)):
+            var_mo[i,:,:,:] = UT.calcDecJanFeb(runs[i],runs[i],lat,lon,'surface',1) 
+        varfuturem = var_mo[0]
+        varpastm = var_mo[1]
     else:
         print(ValueError('Selected wrong month period!'))
     
