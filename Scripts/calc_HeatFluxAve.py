@@ -56,12 +56,15 @@ def readSICData(experiment):
     
     return sic,lat,lon
 
-def readHeatFluxData(experiment):
+def readHeatFluxData(experiment,variable):
     ### Call function for 4d variable data
     lat,lon,lev,flxq = MO.readExperiAll('RNET',experiment,'surface')
     
     ### Calculate ensemble mean
-    flxm = np.nanmean(flxq[:,:,:,:],axis=0) * -1 # upwards is positive
+    if variable == 'RNET':
+        flxm = np.nanmean(flxq[:,:,:,:],axis=0) * -1 # upwards is positive
+    else:
+        flxm = np.nanmean(flxq[:,:,:,:],axis=0)
     
     ### Remove missing data
     flxm[np.where(flxm <= -1e10)] = np.nan
@@ -77,12 +80,13 @@ def readHeatFluxData(experiment):
 ###########################################################################
 ###########################################################################
 ### Read in data
+variableq = 'FSNS'
 sicpd,lat,lon = readSICData('ANT_Cu')
 sicpi,lat,lon = readSICData('ANT_Pi')
 
-flxf,lat,lon = readHeatFluxData('ANT_Fu')
-flxpd,lat,lon = readHeatFluxData('ANT_Cu')
-flxpi,lat,lon = readHeatFluxData('ANT_Pi')
+flxf,lat,lon = readHeatFluxData('ANT_Fu',variableq)
+flxpd,lat,lon = readHeatFluxData('ANT_Cu',variableq)
+flxpi,lat,lon = readHeatFluxData('ANT_Pi',variableq)
 
 ### Create meshgrid for lat/lon
 lon2,lat2 = np.meshgrid(lon,lat)
@@ -150,17 +154,17 @@ plt.xlim([0,11])
 
 ax.yaxis.grid(zorder=1,color='dimgrey',alpha=0.45)
 
-plt.ylabel(r'\textbf{Net Surface Heat Flux [W/m$\bf{^{2}}$]}',
+plt.ylabel(r'\textbf{%s Flux [W/m$\bf{^{2}}$]}' % variableq,
                      color='k',fontsize=10,labelpad=9)
 plt.legend(shadow=False,fontsize=8,loc='upper center',
            bbox_to_anchor=(0.5, 0.1),fancybox=True,frameon=False,ncol=2)
 
-plt.savefig(directoryfigure + 'RNET_Anomalies.png',dpi=900)
+plt.savefig(directoryfigure + '%s_Anomalies.png' % variableq,dpi=900)
 
 ###############################################################################
 ###############################################################################
 ###############################################################################
 ### Save data output
-np.savetxt(directoryoutput + 'Antarctic_RNETA_PI.txt',avepi)
-np.savetxt(directoryoutput + 'Antarctic_RNETA_PD.txt',avepd)
+np.savetxt(directoryoutput + 'Antarctic_%sA_PI.txt' % variableq,avepi)
+np.savetxt(directoryoutput + 'Antarctic_%sA_PD.txt' % variableq,avepd)
 
